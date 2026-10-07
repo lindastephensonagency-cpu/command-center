@@ -1,0 +1,2297 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0b4b46">
+  <title>Gateway Health Group Command Center</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230b4b46'/%3E%3Cpath d='M14 43h36M18 39V28h6v11m4 0V19h7v20m4 0V24h7v15' stroke='%23e0ad3a' stroke-width='4' fill='none' stroke-linecap='round'/%3E%3C/svg%3E">
+  <style>
+    :root {
+      --navy: #173b59;
+      --teal-950: #073c38;
+      --teal-900: #0b4b46;
+      --teal-800: #0d5d56;
+      --teal-700: #08766c;
+      --teal-100: #dff2ef;
+      --teal-50: #eff8f6;
+      --gold: #d8a539;
+      --gold-soft: #fff3d9;
+      --ink: #193545;
+      --muted: #5c7482;
+      --line: #d6e3e5;
+      --canvas: #f4f7f7;
+      --panel: #ffffff;
+      --danger: #bb433c;
+      --danger-soft: #fbe9e7;
+      --shadow: 0 12px 30px rgba(20, 58, 67, 0.08);
+      --radius: 16px;
+    }
+
+    * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      min-width: 320px;
+      color: var(--ink);
+      background: var(--canvas);
+      font: 16px/1.5 "Segoe UI", Arial, sans-serif;
+    }
+
+    button, input, select, textarea { font: inherit; }
+
+    button, a, summary, input[type="checkbox"] {
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    a { color: inherit; }
+
+    button:focus-visible,
+    a:focus-visible,
+    input:focus-visible,
+    select:focus-visible,
+    textarea:focus-visible,
+    summary:focus-visible {
+      outline: 3px solid rgba(216, 165, 57, 0.48);
+      outline-offset: 2px;
+    }
+
+    .app-shell { min-height: 100vh; }
+
+    .sidebar {
+      position: fixed;
+      inset: 0 auto 0 0;
+      z-index: 20;
+      width: 248px;
+      display: flex;
+      flex-direction: column;
+      padding: 22px 14px;
+      color: #fff;
+      background: linear-gradient(180deg, var(--teal-900), var(--teal-950));
+      overflow-y: auto;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px;
+      margin-bottom: 24px;
+      background: #fff;
+      color: var(--teal-900);
+      border-radius: 14px;
+    }
+
+    .brand-mark {
+      width: 48px;
+      height: 48px;
+      display: grid;
+      place-items: center;
+      flex: 0 0 auto;
+      color: var(--gold);
+      background: var(--teal-50);
+      border-radius: 12px;
+    }
+
+    .brand strong {
+      display: block;
+      font-size: 0.93rem;
+    }
+
+    .brand span {
+      display: block;
+      color: var(--muted);
+      font-size: 0.76rem;
+    }
+
+    .nav-label {
+      padding: 0 12px 8px;
+      color: #b7d2cf;
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+
+    .nav-list {
+      display: grid;
+      gap: 6px;
+    }
+
+    .nav-link {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-height: 46px;
+      padding: 10px 14px;
+      color: #e8f4f2;
+      text-decoration: none;
+      border-radius: 11px;
+      transition: 150ms ease;
+    }
+
+    .nav-link:hover,
+    .nav-link.active {
+      background: rgba(255, 255, 255, 0.13);
+    }
+
+    .nav-link.active {
+      box-shadow: inset 3px 0 var(--gold);
+    }
+
+    .nav-icon {
+      width: 22px;
+      text-align: center;
+    }
+
+    .privacy-note {
+      margin-top: auto;
+      padding: 15px;
+      color: #d9ece9;
+      background: rgba(255, 255, 255, 0.07);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 13px;
+      font-size: 0.78rem;
+    }
+
+    .privacy-note strong {
+      display: block;
+      margin-bottom: 5px;
+      color: #fff;
+    }
+
+    .main {
+      min-height: 100vh;
+      margin-left: 248px;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      min-height: 72px;
+      padding: 14px 32px;
+      background: rgba(244, 247, 247, 0.94);
+      border-bottom: 1px solid var(--line);
+      backdrop-filter: blur(10px);
+    }
+
+    .breadcrumb {
+      color: var(--teal-700);
+      font-size: 0.78rem;
+      font-weight: 800;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+
+    .saved-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      color: var(--muted);
+      font-size: 0.82rem;
+    }
+
+    .mobile-menu {
+      display: none;
+      width: 42px;
+      height: 42px;
+      color: var(--teal-900);
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      cursor: pointer;
+    }
+
+    .content {
+      width: min(1500px, 100%);
+      margin: 0 auto;
+      padding: 30px 32px 58px;
+    }
+
+    .view { display: none; }
+
+    .view.active {
+      display: block;
+      animation: fade-in 180ms ease;
+    }
+
+    @keyframes fade-in {
+      from {
+        opacity: 0;
+        transform: translateY(3px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .page-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 24px;
+      margin-bottom: 24px;
+    }
+
+    .eyebrow {
+      margin: 0 0 7px;
+      color: var(--teal-700);
+      font-size: 0.74rem;
+      font-weight: 800;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+
+    h1, h2, h3, p { margin-top: 0; }
+
+    h1 {
+      margin-bottom: 6px;
+      font-size: clamp(1.75rem, 3vw, 2.45rem);
+      line-height: 1.15;
+      letter-spacing: -0.035em;
+    }
+
+    h2 {
+      margin-bottom: 6px;
+      font-size: 1.25rem;
+      line-height: 1.25;
+    }
+
+    h3 {
+      margin-bottom: 6px;
+      font-size: 1rem;
+    }
+
+    .subtle { color: var(--muted); }
+
+    .small { font-size: 0.84rem; }
+
+    .head-actions,
+    .button-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 42px;
+      padding: 9px 15px;
+      color: var(--ink);
+      background: #fff;
+      border: 1px solid #c7d8da;
+      border-radius: 10px;
+      font-weight: 700;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .button:hover { border-color: var(--teal-700); }
+
+    .button.primary {
+      color: #fff;
+      background: var(--teal-700);
+      border-color: var(--teal-700);
+    }
+
+    .button.primary:hover { background: var(--teal-800); }
+
+    .button.gold {
+      color: #3e321b;
+      background: var(--gold-soft);
+      border-color: #e6c577;
+    }
+
+    .button.danger {
+      color: var(--danger);
+      background: var(--danger-soft);
+      border-color: #f0c8c4;
+    }
+
+    .button.small-button {
+      min-height: 34px;
+      padding: 6px 10px;
+      font-size: 0.8rem;
+    }
+
+    .notice {
+      display: flex;
+      gap: 12px;
+      padding: 16px 18px;
+      margin-bottom: 22px;
+      color: #265750;
+      background: var(--teal-50);
+      border: 1px solid #cce6e1;
+      border-radius: 12px;
+    }
+
+    .notice strong { color: var(--navy); }
+
+    .grid {
+      display: grid;
+      gap: 16px;
+    }
+
+    .grid.four {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .grid.three {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .grid.two {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .span-2 { grid-column: span 2; }
+
+    .panel {
+      padding: 22px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .panel-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 17px;
+    }
+
+    .metric-card { min-height: 142px; }
+
+    .metric-label {
+      color: var(--muted);
+      font-size: 0.82rem;
+      font-weight: 700;
+    }
+
+    .metric-value {
+      margin: 16px 0 7px;
+      color: var(--ink);
+      font-size: 2rem;
+      line-height: 1;
+      font-weight: 650;
+    }
+
+    .metric-meta {
+      display: flex;
+      justify-content: space-between;
+      color: var(--muted);
+      font-size: 0.78rem;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 4px 8px;
+      color: var(--teal-800);
+      background: var(--teal-100);
+      border-radius: 7px;
+      font-size: 0.72rem;
+      font-weight: 800;
+    }
+
+    .pill.watch {
+      color: #80580f;
+      background: var(--gold-soft);
+    }
+
+    .priority-list,
+    .action-list,
+    .partner-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .list-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 13px 14px;
+      background: #fbfdfd;
+      border: 1px solid var(--line);
+      border-radius: 11px;
+    }
+
+    .list-row.completed .row-title {
+      text-decoration: line-through;
+      opacity: 0.6;
+    }
+
+    .row-title { font-weight: 700; }
+
+    .row-meta {
+      color: var(--muted);
+      font-size: 0.78rem;
+    }
+
+    .row-actions {
+      display: flex;
+      flex: 0 0 auto;
+      gap: 7px;
+    }
+
+    .field {
+      display: grid;
+      gap: 6px;
+    }
+
+    .field label {
+      color: #45616f;
+      font-size: 0.82rem;
+      font-weight: 750;
+    }
+
+    input[type="text"],
+    input[type="date"],
+    input[type="number"],
+    select,
+    textarea {
+      width: 100%;
+      min-height: 43px;
+      padding: 10px 12px;
+      color: var(--ink);
+      background: #fff;
+      border: 1px solid #bccfd2;
+      border-radius: 9px;
+    }
+
+    textarea {
+      min-height: 98px;
+      resize: vertical;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .form-grid .full { grid-column: 1 / -1; }
+
+    .portal-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .portal-link {
+      display: block;
+      min-height: 96px;
+      padding: 16px;
+      text-decoration: none;
+      background: #fbfdfd;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+    }
+
+    .portal-link:hover {
+      border-color: var(--teal-700);
+      transform: translateY(-1px);
+    }
+
+    .portal-link strong {
+      display: block;
+      margin-bottom: 5px;
+      color: var(--navy);
+    }
+
+    .portal-link span {
+      color: var(--muted);
+      font-size: 0.8rem;
+    }
+
+    /* LIS Mailer Call Script */
+    .lis-panel {
+      margin-top: 22px;
+      overflow: hidden;
+      padding: 0;
+      border-color: #b8dcd7;
+    }
+
+    .lis-top {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 18px;
+      align-items: center;
+      padding: 22px;
+      color: #fff;
+      background: linear-gradient(120deg, var(--teal-900), #0b7067);
+    }
+
+    .lis-top .eyebrow { color: #aee4dc; }
+
+    .lis-top h2 {
+      margin-bottom: 5px;
+      font-size: 1.45rem;
+    }
+
+    .lis-top p {
+      margin-bottom: 0;
+      color: #d8eeeb;
+    }
+
+    .timer-box {
+      min-width: 230px;
+      padding: 15px;
+      text-align: center;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      border-radius: 14px;
+    }
+
+    .timer-label {
+      color: #cbe5e2;
+      font-size: 0.75rem;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .timer-display {
+      margin: 6px 0 12px;
+      font: 700 2.3rem/1 ui-monospace, SFMono-Regular, Consolas, monospace;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .timer-box .button { min-height: 38px; }
+
+    .lis-body { padding: 22px; }
+
+    .lis-control-row {
+      display: grid;
+      grid-template-columns: minmax(220px, 1fr) auto;
+      gap: 14px;
+      align-items: end;
+      padding-bottom: 18px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .live-name-note {
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: 0.78rem;
+    }
+
+    .script-sections {
+      display: grid;
+      gap: 11px;
+      margin-top: 18px;
+    }
+
+    .script-section {
+      background: #fbfdfd;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .script-section[open] {
+      border-color: #afd7d2;
+      box-shadow: 0 7px 20px rgba(20, 88, 80, 0.07);
+    }
+
+    .script-section summary {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      min-height: 54px;
+      padding: 13px 16px;
+      color: var(--navy);
+      font-weight: 800;
+      cursor: pointer;
+      list-style: none;
+    }
+
+    .script-section summary::-webkit-details-marker { display: none; }
+
+    .script-section summary::after {
+      content: "+";
+      color: var(--teal-700);
+      font-size: 1.4rem;
+      line-height: 1;
+    }
+
+    .script-section[open] summary::after { content: "−"; }
+
+    .script-copy {
+      padding: 0 18px 18px;
+      color: #294a58;
+    }
+
+    .script-text {
+      padding: 15px;
+      margin: 0;
+      background: #fff;
+      border-left: 4px solid var(--gold);
+      border-radius: 0 9px 9px 0;
+    }
+
+    .lead-name {
+      color: var(--teal-700);
+      font-weight: 800;
+    }
+
+    .question-list {
+      display: grid;
+      gap: 10px;
+      margin: 15px 0;
+    }
+
+    .question-check {
+      display: grid;
+      grid-template-columns: 24px 1fr;
+      gap: 10px;
+      align-items: start;
+      padding: 12px;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      cursor: pointer;
+    }
+
+    .question-check:has(input:checked) {
+      background: var(--teal-50);
+      border-color: #9bcfc8;
+    }
+
+    .question-check input {
+      width: 19px;
+      height: 19px;
+      margin: 2px 0 0;
+      accent-color: var(--teal-700);
+    }
+
+    .question-check strong { color: var(--navy); }
+
+    .compliance-note {
+      padding: 12px 14px;
+      margin-top: 16px;
+      color: #694d15;
+      background: #fff9eb;
+      border: 1px solid #ead39f;
+      border-radius: 10px;
+      font-size: 0.8rem;
+    }
+
+    .review-checklist {
+      display: grid;
+      gap: 10px;
+    }
+
+    .review-item {
+      display: grid;
+      grid-template-columns: 24px 1fr;
+      gap: 11px;
+      padding: 13px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+    }
+
+    .review-item input {
+      width: 19px;
+      height: 19px;
+      accent-color: var(--teal-700);
+    }
+
+    .empty-state {
+      padding: 22px;
+      color: var(--muted);
+      text-align: center;
+      border: 1px dashed #bfd0d2;
+      border-radius: 10px;
+    }
+
+    .toast {
+      position: fixed;
+      right: 22px;
+      bottom: 22px;
+      z-index: 50;
+      max-width: 360px;
+      padding: 13px 16px;
+      color: #fff;
+      background: var(--ink);
+      border-radius: 11px;
+      box-shadow: var(--shadow);
+      opacity: 0;
+      transform: translateY(10px);
+      pointer-events: none;
+      transition: 180ms ease;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .footer {
+      padding-top: 28px;
+      color: var(--muted);
+      font-size: 0.76rem;
+      text-align: center;
+    }
+
+    @media (max-width: 1120px) {
+      .grid.four {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .grid.three,
+      .portal-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 820px) {
+      .sidebar {
+        transform: translateX(-105%);
+        transition: 180ms ease;
+        box-shadow: 16px 0 40px rgba(0, 0, 0, 0.2);
+      }
+
+      .sidebar.open { transform: translateX(0); }
+
+      .main { margin-left: 0; }
+
+      .mobile-menu {
+        display: inline-grid;
+        place-items: center;
+      }
+
+      .topbar { padding: 12px 18px; }
+
+      .content { padding: 24px 18px 48px; }
+
+      .page-head { flex-direction: column; }
+
+      .grid.two,
+      .grid.three,
+      .portal-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .span-2 { grid-column: auto; }
+
+      .lis-top,
+      .lis-control-row {
+        grid-template-columns: 1fr;
+      }
+
+      .timer-box { min-width: 0; }
+    }
+
+    @media (max-width: 560px) {
+      .grid.four,
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .form-grid .full { grid-column: auto; }
+
+      .saved-status span { display: none; }
+
+      .panel,
+      .lis-body {
+        padding: 17px;
+      }
+
+      .lis-top { padding: 18px; }
+
+      .list-row {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+    }
+
+    @media print {
+      .sidebar,
+      .topbar,
+      .head-actions,
+      .timer-box,
+      .button,
+      .footer {
+        display: none !important;
+      }
+
+      .main { margin: 0; }
+
+      .content {
+        width: 100%;
+        padding: 0;
+      }
+
+      .view { display: none !important; }
+
+      #today.view { display: block !important; }
+
+      .panel {
+        box-shadow: none;
+        break-inside: avoid;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar" aria-label="Command Center navigation">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">
+          <svg width="34" height="34" viewBox="0 0 40 40" fill="none">
+            <path d="M4 31h32M7 28V18h5v10m5 0V9h6v19m5 0V14h5v14" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div>
+          <strong>Gateway Health Group</strong>
+          <span>Command Center</span>
+        </div>
+      </div>
+
+      <div class="nav-label">Command Center</div>
+
+      <nav class="nav-list">
+        <a class="nav-link" href="#today" data-view-link="today">
+          <span class="nav-icon">⌂</span>Today
+        </a>
+        <a class="nav-link" href="#actions" data-view-link="actions">
+          <span class="nav-icon">✓</span>Actions
+        </a>
+        <a class="nav-link" href="#growth" data-view-link="growth">
+          <span class="nav-icon">↗</span>Growth
+        </a>
+        <a class="nav-link" href="#review" data-view-link="review">
+          <span class="nav-icon">▣</span>Review
+        </a>
+        <a class="nav-link" href="#integrity" data-view-link="integrity">
+          <span class="nav-icon">◇</span>Integrity
+        </a>
+        <a class="nav-link" href="#partners" data-view-link="partners">
+          <span class="nav-icon">⌁</span>Partners
+        </a>
+        <a class="nav-link" href="#playbook" data-view-link="playbook">
+          <span class="nav-icon">▤</span>Playbook
+        </a>
+      </nav>
+
+      <div class="privacy-note">
+        <strong>One source of truth</strong>
+        Client records and communications stay in IntegrityCONNECT.
+        Keep priorities and aggregate business totals here.
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div style="display:flex; align-items:center; gap:12px">
+          <button
+            class="mobile-menu"
+            id="mobileMenu"
+            type="button"
+            aria-label="Open navigation"
+            aria-controls="sidebar"
+            aria-expanded="false"
+          >☰</button>
+
+          <div class="breadcrumb">
+            Gateway Health Group&nbsp;&nbsp;/&nbsp;&nbsp;<span id="breadcrumbName">Today</span>
+          </div>
+        </div>
+
+        <div class="saved-status" title="This offline file saves in this browser only">
+          🔒 <span>Private · Saved in this browser</span>
+        </div>
+      </header>
+
+      <div class="content">
+        <section class="view" id="today" data-view="today">
+          <div class="page-head">
+            <div>
+              <p class="eyebrow">Monday–Sunday operating view</p>
+              <h1>Good <span id="dayGreeting">morning</span>, Linda.</h1>
+              <p class="subtle" id="todayDate">Your priorities, calls, and weekly pace.</p>
+            </div>
+
+            <div class="head-actions">
+              <a class="button" href="https://mail.google.com/" target="_blank" rel="noopener">
+                Agency Gmail ↗
+              </a>
+              <a class="button" href="https://outlook.office.com/mail/" target="_blank" rel="noopener">
+                Gateway Email ↗
+              </a>
+            </div>
+          </div>
+
+          <div class="notice">
+            <span aria-hidden="true">◇</span>
+            <div>
+              <strong>IntegrityCONNECT is the client system of record.</strong><br>
+              <span class="small">
+                Use this command center for priorities, aggregate totals, and approved resources.
+                Do not store beneficiary details here.
+              </span>
+            </div>
+          </div>
+
+          <div class="grid four" id="todayMetrics">
+            <article class="panel metric-card">
+              <div class="metric-label">New opportunities</div>
+              <div class="metric-value" data-metric-display="opportunities">0</div>
+              <div class="metric-meta">
+                <span>Weekly total</span>
+                <span>Growth</span>
+              </div>
+            </article>
+
+            <article class="panel metric-card">
+              <div class="metric-label">Contacted</div>
+              <div class="metric-value" data-metric-display="contacted">0</div>
+              <div class="metric-meta">
+                <span>Weekly total</span>
+                <span>Outreach</span>
+              </div>
+            </article>
+
+            <article class="panel metric-card">
+              <div class="metric-label">Appointments scheduled</div>
+              <div class="metric-value" data-metric-display="scheduled">0</div>
+              <div class="metric-meta">
+                <span>Weekly total</span>
+                <span>Pipeline</span>
+              </div>
+            </article>
+
+            <article class="panel metric-card">
+              <div class="metric-label">Applications submitted</div>
+              <div class="metric-value" data-metric-display="applications">0</div>
+              <div class="metric-meta">
+                <span>Weekly total</span>
+                <span>Production</span>
+              </div>
+            </article>
+          </div>
+
+          <div class="grid two" style="margin-top:22px">
+            <article class="panel">
+              <div class="panel-header">
+                <div>
+                  <p class="eyebrow">Focus</p>
+                  <h2>Today’s priorities</h2>
+                </div>
+                <a class="button small-button" href="#actions">Manage actions</a>
+              </div>
+              <div class="priority-list" id="todayPriorityList"></div>
+            </article>
+
+            <article class="panel">
+              <div class="panel-header">
+                <div>
+                  <p class="eyebrow">Quick access</p>
+                  <h2>Agent portals</h2>
+                </div>
+              </div>
+
+              <div class="portal-grid" style="grid-template-columns:repeat(2,minmax(0,1fr))">
+                <a
+                  class="portal-link"
+                  href="https://connect.integrity.com/agent/dashboard"
+                  target="_blank"
+                  rel="noopener"
+                >
+                  <strong>IntegrityCONNECT ↗</strong>
+                  <span>Client system of record</span>
+                </a>
+
+                <a
+                  class="portal-link"
+                  href="https://www.uhcjarvis.com/"
+                  target="_blank"
+                  rel="noopener"
+                >
+                  <strong>UHC Jarvis ↗</strong>
+                  <span>Agent portal</span>
+                </a>
+
+                <a
+                  class="portal-link"
+                  href="https://agentportal.humana.com/Vantage/apps/index.html?agenthome=-1"
+                  target="_blank"
+                  rel="noopener"
+                >
+                  <strong>Humana Vantage ↗</strong>
+                  <span>Agent portal</span>
+                </a>
+
+                <a
+                  class="portal-link"
+                  href="https://agent.devoted.com/"
+                  target="_blank"
+                  rel="noopener"
+                >
+                  <strong>Devoted ↗</strong>
+                  <span>Agent portal</span>
+                </a>
+              </div>
+            </article>
+          </div>
+
+          <article class="panel lis-panel" aria-labelledby="lisTitle">
+            <div class="lis-top">
+              <div>
+                <p class="eyebrow">Call workspace</p>
+                <h2 id="lisTitle">LIS Mailer Call Script</h2>
+                <p>
+                  Enter a first name, open only the path you need,
+                  and keep the conversation moving.
+                </p>
+              </div>
+
+              <div class="timer-box" aria-label="Call timer">
+                <div class="timer-label">Call timer</div>
+                <div class="timer-display" id="timerDisplay" role="timer" aria-live="off">00:00</div>
+
+                <div class="button-row" style="justify-content:center">
+                  <button class="button gold" id="timerToggle" type="button">▶ Start call</button>
+                  <button class="button" id="timerReset" type="button">Reset</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="lis-body">
+              <div class="lis-control-row">
+                <div class="field">
+                  <label for="leadFirstName">Lead First Name</label>
+                  <input
+                    id="leadFirstName"
+                    type="text"
+                    autocomplete="off"
+                    placeholder="Enter first name"
+                    aria-describedby="leadNameHelp"
+                  >
+                  <div class="live-name-note" id="leadNameHelp">
+                    The name updates every highlighted [First Name] below as you type.
+                  </div>
+                </div>
+
+                <div class="button-row">
+                  <button class="button" id="expandScripts" type="button">Open all</button>
+                  <button class="button" id="resetCallTool" type="button">New call</button>
+                </div>
+              </div>
+
+              <div class="script-sections" id="scriptSections">
+                <details class="script-section" open>
+                  <summary>Opening</summary>
+                  <div class="script-copy">
+                    <p class="script-text">
+                      “Hi <span class="lead-name">[First Name]</span>, this is Linda with
+                      Gateway Health Group. I’m following up on the information request or
+                      mail piece you returned about Medicare-related assistance. Did I catch
+                      you at an okay time for a quick conversation?”
+                    </p>
+                  </div>
+                </details>
+
+                <details class="script-section">
+                  <summary>Yes Pathway · Q1–Q3</summary>
+                  <div class="script-copy">
+                    <p>
+                      “Thank you, <span class="lead-name">[First Name]</span>.
+                      I have three quick questions so I can understand the right next step.”
+                    </p>
+
+                    <div class="question-list">
+                      <label class="question-check">
+                        <input type="checkbox" data-lis-question="q1">
+                        <span>
+                          <strong>Q1</strong><br>
+                          “Are you currently enrolled in Medicare Parts A and B?”
+                        </span>
+                      </label>
+
+                      <label class="question-check">
+                        <input type="checkbox" data-lis-question="q2">
+                        <span>
+                          <strong>Q2</strong><br>
+                          “Do you currently receive Extra Help or other assistance
+                          with your prescription costs?”
+                        </span>
+                      </label>
+
+                      <label class="question-check">
+                        <input type="checkbox" data-lis-question="q3">
+                        <span>
+                          <strong>Q3</strong><br>
+                          “Would you like to schedule a brief review of available
+                          assistance and plan options?”
+                        </span>
+                      </label>
+                    </div>
+
+                    <p class="script-text">
+                      “Thank you, <span class="lead-name">[First Name]</span>.
+                      I’ll document only the next step and use our approved secure
+                      process for any personal information.”
+                    </p>
+                  </div>
+                </details>
+
+                <details class="script-section">
+                  <summary>Don’t Remember Pivot</summary>
+                  <div class="script-copy">
+                    <p class="script-text">
+                      “No problem, <span class="lead-name">[First Name]</span>.
+                      I’m calling because you may have responded to a mailer asking for
+                      information. I don’t want to assume. Would you prefer that I briefly
+                      explain why I called, or should I remove this follow-up from my list?”
+                    </p>
+                  </div>
+                </details>
+
+                <details class="script-section">
+                  <summary>Voicemail Template</summary>
+                  <div class="script-copy">
+                    <p class="script-text">
+                      “Hi <span class="lead-name">[First Name]</span>, this is Linda with
+                      Gateway Health Group. I’m following up on a request for information.
+                      Please call me back at your approved callback number. Again, this is
+                      Linda with Gateway Health Group. Thank you.”
+                    </p>
+                  </div>
+                </details>
+              </div>
+
+              <div class="compliance-note">
+                <strong>Call note:</strong>
+                Use only approved contact permissions, disclosures, callback information,
+                and materials. Keep beneficiary details in IntegrityCONNECT—not in this
+                offline dashboard.
+              </div>
+            </div>
+          </article>
+        </section>
+
+        <section class="view" id="actions" data-view="actions">
+          <div class="page-head">
+            <div>
+              <p class="eyebrow">Action queue</p>
+              <h1>Move the work forward.</h1>
+              <p class="subtle">
+                Keep this list operational. Client details stay in IntegrityCONNECT.
+              </p>
+            </div>
+          </div>
+
+          <div class="grid two">
+            <article class="panel">
+              <div class="panel-header">
+                <div>
+                  <h2>Add an action</h2>
+                  <p class="subtle small">Use a short, non-client-specific description.</p>
+                </div>
+              </div>
+
+              <form id="actionForm" class="form-grid">
+                <div class="field full">
+                  <label for="actionTitle">Action</label>
+                  <input
+                    id="actionTitle"
+                    type="text"
+                    required
+                    placeholder="Example: Confirm Thursday event materials"
+                  >
+                </div>
+
+                <div class="field">
+                  <label for="actionLane">Lane</label>
+                  <select id="actionLane">
+                    <option>Do now</option>
+                    <option>Next</option>
+                    <option>Waiting</option>
+                  </select>
+                </div>
+
+                <div class="field">
+                  <label for="actionDue">Due date</label>
+                  <input id="actionDue" type="date">
+                </div>
+
+                <div class="full">
+                  <button class="button primary" type="submit">Add action</button>
+                </div>
+              </form>
+            </article>
+
+            <article class="panel">
+              <div class="panel-header">
+                <div>
+                  <h2>Current actions</h2>
+                  <p class="subtle small">Mark complete or remove when no longer useful.</p>
+                </div>
+              </div>
+
+              <div class="action-list" id="actionList"></div>
+            </article>
+          </div>
+        </section>
+
+        <section class="view" id="growth" data-view="growth">
+          <div class="page-head">
+            <div>
+              <p class="eyebrow">Weekly growth scorecard</p>
+              <h1>Know what changed.</h1>
+              <p class="subtle">
+                Update aggregate business totals for the current Monday–Sunday week.
+              </p>
+            </div>
+          </div>
+
+          <div class="grid four" id="growthMetrics"></div>
+
+          <article class="panel" style="margin-top:20px">
+            <div class="panel-header">
+              <div>
+                <h2>Update weekly totals</h2>
+                <p class="subtle small">Numbers only—no beneficiary information.</p>
+              </div>
+            </div>
+
+            <form id="metricsForm" class="form-grid">
+              <div class="field">
+                <label for="metricOpportunities">New opportunities</label>
+                <input id="metricOpportunities" type="number" min="0" step="1">
+              </div>
+
+              <div class="field">
+                <label for="metricContacted">Contacted</label>
+                <input id="metricContacted" type="number" min="0" step="1">
+              </div>
+
+              <div class="field">
+                <label for="metricScheduled">Appointments scheduled</label>
+                <input id="metricScheduled" type="number" min="0" step="1">
+              </div>
+
+              <div class="field">
+                <label for="metricCompleted">Appointments completed</label>
+                <input id="metricCompleted" type="number" min="0" step="1">
+              </div>
+
+              <div class="field">
+                <label for="metricApplications">Applications submitted</label>
+                <input id="metricApplications" type="number" min="0" step="1">
+              </div>
+
+              <div class="field">
+                <label for="metricFollowups">Overdue follow-ups</label>
+                <input id="metricFollowups" type="number" min="0" step="1">
+              </div>
+
+              <div class="field">
+                <label for="metricReferrals">Referral introductions</label>
+                <input id="metricReferrals" type="number" min="0" step="1">
+              </div>
+
+              <div class="field">
+                <label for="metricEvents">Educational events</label>
+                <input id="metricEvents" type="number" min="0" step="1">
+              </div>
+
+              <div class="full">
+                <button class="button primary" type="submit">Save weekly totals</button>
+              </div>
+            </form>
+          </article>
+        </section>
+
+        <section class="view" id="review" data-view="review">
+          <div class="page-head">
+            <div>
+              <p class="eyebrow">Weekly close</p>
+              <h1>Make three clear commitments.</h1>
+              <p class="subtle">
+                Close the prior week, decide what matters, then save the new week’s commitments.
+              </p>
+            </div>
+          </div>
+
+          <div class="grid two">
+            <article class="panel">
+              <div class="panel-header">
+                <div>
+                  <h2>Close and verify</h2>
+                  <p class="subtle small">Complete these in order.</p>
+                </div>
+              </div>
+
+              <div class="review-checklist" id="reviewChecklist">
+                <label class="review-item">
+                  <input type="checkbox" data-review-check="integrity">
+                  <span>
+                    <strong>IntegrityCONNECT is current</strong><br>
+                    <span class="small subtle">
+                      Client notes and follow-ups are in the system of record.
+                    </span>
+                  </span>
+                </label>
+
+                <label class="review-item">
+                  <input type="checkbox" data-review-check="actions">
+                  <span>
+                    <strong>Actions are clean</strong><br>
+                    <span class="small subtle">
+                      Completed work is closed; waiting items have a clear next step.
+                    </span>
+                  </span>
+                </label>
+
+                <label class="review-item">
+                  <input type="checkbox" data-review-check="totals">
+                  <span>
+                    <strong>Weekly totals are final</strong><br>
+                    <span class="small subtle">
+                      Growth reflects the complete Monday–Sunday week.
+                    </span>
+                  </span>
+                </label>
+
+                <label class="review-item">
+                  <input type="checkbox" data-review-check="partners">
+                  <span>
+                    <strong>Partner follow-ups are captured</strong><br>
+                    <span class="small subtle">
+                      No important relationship next step is floating.
+                    </span>
+                  </span>
+                </label>
+
+                <label class="review-item">
+                  <input type="checkbox" data-review-check="calendar">
+                  <span>
+                    <strong>Calendar is ready</strong><br>
+                    <span class="small subtle">
+                      This week’s commitments have time reserved.
+                    </span>
+                  </span>
+                </label>
+              </div>
+            </article>
+
+            <article class="panel">
+              <div class="panel-header">
+                <div>
+                  <h2>Next week’s three commitments</h2>
+                  <p class="subtle small">Write outcomes, not broad categories.</p>
+                </div>
+              </div>
+
+              <form id="reviewForm" class="form-grid">
+                <div class="field full">
+                  <label for="commitment1">Commitment 1</label>
+                  <input id="commitment1" type="text" placeholder="Most important business outcome">
+                </div>
+
+                <div class="field">
+                  <label for="commitment1Due">Due</label>
+                  <input id="commitment1Due" type="date">
+                </div>
+                <div></div>
+
+                <div class="field full">
+                  <label for="commitment2">Commitment 2</label>
+                  <input id="commitment2" type="text" placeholder="Second important outcome">
+                </div>
+
+                <div class="field">
+                  <label for="commitment2Due">Due</label>
+                  <input id="commitment2Due" type="date">
+                </div>
+                <div></div>
+
+                <div class="field full">
+                  <label for="commitment3">Commitment 3</label>
+                  <input id="commitment3" type="text" placeholder="Third important outcome">
+                </div>
+
+                <div class="field">
+                  <label for="commitment3Due">Due</label>
+                  <input id="commitment3Due" type="date">
+                </div>
+                <div></div>
+
+                <div class="full button-row">
+                  <button class="button primary" type="submit">Save review draft</button>
+                  <button class="button" id="clearReview" type="button">Start fresh</button>
+                </div>
+              </form>
+            </article>
+          </div>
+        </section>
+
+        <section class="view" id="integrity" data-view="integrity">
+          <div class="page-head">
+            <div>
+              <p class="eyebrow">System of record</p>
+              <h1>One client system. One owner view.</h1>
+              <p class="subtle">
+                Open the right portal, finish the client work there,
+                and return here for the operating view.
+              </p>
+            </div>
+          </div>
+
+          <div class="notice">
+            <span>◇</span>
+            <div>
+              <strong>Client information belongs in IntegrityCONNECT.</strong><br>
+              <span class="small">
+                This offline dashboard intentionally avoids client names, member IDs,
+                medications, addresses, and health information.
+              </span>
+            </div>
+          </div>
+
+          <div class="portal-grid">
+            <a
+              class="portal-link"
+              href="https://connect.integrity.com/agent/dashboard"
+              target="_blank"
+              rel="noopener"
+            >
+              <strong>IntegrityCONNECT ↗</strong>
+              <span>Client records, notes, communications, and follow-ups</span>
+            </a>
+
+            <a
+              class="portal-link"
+              href="https://auth.hnlicagent.com/Identity/Account/Login"
+              target="_blank"
+              rel="noopener"
+            >
+              <strong>HNLIC Agent Portal ↗</strong>
+              <span>Carrier access</span>
+            </a>
+
+            <a
+              class="portal-link"
+              href="https://producer.essencehealthcare.com/s/"
+              target="_blank"
+              rel="noopener"
+            >
+              <strong>Essence Producer Portal ↗</strong>
+              <span>Carrier access</span>
+            </a>
+
+            <a
+              class="portal-link"
+              href="https://www.uhcjarvis.com/"
+              target="_blank"
+              rel="noopener"
+            >
+              <strong>UHC Jarvis ↗</strong>
+              <span>Carrier access</span>
+            </a>
+
+            <a
+              class="portal-link"
+              href="https://agentportal.humana.com/Vantage/apps/index.html?agenthome=-1"
+              target="_blank"
+              rel="noopener"
+            >
+              <strong>Humana Vantage ↗</strong>
+              <span>Carrier access</span>
+            </a>
+
+            <a
+              class="portal-link"
+              href="https://agent.devoted.com/"
+              target="_blank"
+              rel="noopener"
+            >
+              <strong>Devoted Agent Portal ↗</strong>
+              <span>Carrier access</span>
+            </a>
+          </div>
+        </section>
+
+        <section class="view" id="partners" data-view="partners">
+          <div class="page-head">
+            <div>
+              <p class="eyebrow">Relationship pipeline</p>
+              <h1>Build relationships that last.</h1>
+              <p class="subtle">
+                Track organizations and next steps—never beneficiary details.
+              </p>
+            </div>
+          </div>
+
+          <div class="grid two">
+            <article class="panel">
+              <div class="panel-header">
+                <div>
+                  <h2>Add a partner</h2>
+                  <p class="subtle small">Use organization-level information.</p>
+                </div>
+              </div>
+
+              <form id="partnerForm" class="form-grid">
+                <div class="field full">
+                  <label for="partnerName">Organization or partner</label>
+                  <input
+                    id="partnerName"
+                    type="text"
+                    required
+                    placeholder="Example: Community resource center"
+                  >
+                </div>
+
+                <div class="field full">
+                  <label for="partnerNext">Next step</label>
+                  <input
+                    id="partnerNext"
+                    type="text"
+                    required
+                    placeholder="Example: Confirm November education date"
+                  >
+                </div>
+
+                <div class="field">
+                  <label for="partnerDue">Due</label>
+                  <input id="partnerDue" type="date">
+                </div>
+
+                <div class="full">
+                  <button class="button primary" type="submit">Add partner</button>
+                </div>
+              </form>
+            </article>
+
+            <article class="panel">
+              <div class="panel-header">
+                <div>
+                  <h2>Partner follow-ups</h2>
+                  <p class="subtle small">One clear next step per relationship.</p>
+                </div>
+              </div>
+
+              <div class="partner-list" id="partnerList"></div>
+            </article>
+          </div>
+        </section>
+
+        <section class="view" id="playbook" data-view="playbook">
+          <div class="page-head">
+            <div>
+              <p class="eyebrow">Operating playbook</p>
+              <h1>Make every next step clear.</h1>
+              <p class="subtle">
+                Short repeatable routines for using the Command Center.
+              </p>
+            </div>
+          </div>
+
+          <div class="script-sections">
+            <details class="script-section" open>
+              <summary>Daily start · 10 minutes</summary>
+              <div class="script-copy">
+                <ol>
+                  <li>Open IntegrityCONNECT and review due follow-ups.</li>
+                  <li>Return to Today and choose the three actions that move work forward.</li>
+                  <li>Reserve time for those actions on your calendar.</li>
+                  <li>Use the LIS script tool when working the approved mailer follow-up list.</li>
+                </ol>
+              </div>
+            </details>
+
+            <details class="script-section">
+              <summary>Weekly close · Monday–Sunday</summary>
+              <div class="script-copy">
+                <ol>
+                  <li>Finish client documentation in IntegrityCONNECT.</li>
+                  <li>Clean the Actions list.</li>
+                  <li>Enter final aggregate totals in Growth.</li>
+                  <li>Complete Review and write three new commitments.</li>
+                </ol>
+              </div>
+            </details>
+
+            <details class="script-section">
+              <summary>Information boundary</summary>
+              <div class="script-copy">
+                <p>
+                  Keep names, contact details, health information, enrollment information,
+                  plan details, and communications in IntegrityCONNECT. The Command Center
+                  is for aggregate totals, process reminders, business priorities, partner
+                  organizations, and approved resources.
+                </p>
+              </div>
+            </details>
+          </div>
+        </section>
+
+        <div class="footer">
+          Gateway Health Group Command Center · Offline edition · Data remains in this browser
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    (() => {
+      "use strict";
+
+      const STORAGE_KEY = "gatewayHealthGroupCommandCenterOfflineV1";
+
+      const metricDefinitions = [
+        ["opportunities", "New opportunities", 13],
+        ["contacted", "Contacted", 9],
+        ["scheduled", "Appointments scheduled", 6],
+        ["completed", "Appointments completed", 5],
+        ["applications", "Applications submitted", 4],
+        ["followups", "Overdue follow-ups", 0],
+        ["referrals", "Referral introductions", 2],
+        ["events", "Educational events", 1]
+      ];
+
+      const defaultState = {
+        metrics: {
+          opportunities: 0,
+          contacted: 0,
+          scheduled: 0,
+          completed: 0,
+          applications: 0,
+          followups: 0,
+          referrals: 0,
+          events: 0
+        },
+        actions: [],
+        partners: [],
+        reviewChecks: {},
+        commitments: [
+          { text: "", due: "" },
+          { text: "", due: "" },
+          { text: "", due: "" }
+        ],
+        lis: {
+          firstName: "",
+          q1: false,
+          q2: false,
+          q3: false
+        }
+      };
+
+      let state = loadState();
+      let timerSeconds = 0;
+      let timerHandle = null;
+
+      const $ = (selector, root = document) => root.querySelector(selector);
+
+      const $$ = (selector, root = document) =>
+        Array.from(root.querySelectorAll(selector));
+
+      function loadState() {
+        try {
+          const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+
+          if (!saved || typeof saved !== "object") {
+            return structuredClone(defaultState);
+          }
+
+          return {
+            ...structuredClone(defaultState),
+            ...saved,
+            metrics: {
+              ...defaultState.metrics,
+              ...(saved.metrics || {})
+            },
+            reviewChecks: {
+              ...(saved.reviewChecks || {})
+            },
+            lis: {
+              ...defaultState.lis,
+              ...(saved.lis || {})
+            },
+            actions: Array.isArray(saved.actions) ? saved.actions : [],
+            partners: Array.isArray(saved.partners) ? saved.partners : [],
+            commitments: Array.isArray(saved.commitments)
+              ? saved.commitments.slice(0, 3)
+              : structuredClone(defaultState.commitments)
+          };
+        } catch (error) {
+          return structuredClone(defaultState);
+        }
+      }
+
+      function saveState(message) {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+
+        if (message) {
+          showToast(message);
+        }
+      }
+
+      function showToast(message) {
+        const toast = $("#toast");
+
+        toast.textContent = message;
+        toast.classList.add("show");
+
+        window.clearTimeout(showToast.timeout);
+
+        showToast.timeout = window.setTimeout(() => {
+          toast.classList.remove("show");
+        }, 2200);
+      }
+
+      function escapeHtml(value) {
+        return String(value).replace(/[&<>'"]/g, character => ({
+          "&": "&amp;",
+          "<": "&lt;",
+          ">": "&gt;",
+          "'": "&#39;",
+          '"': "&quot;"
+        })[character]);
+      }
+
+      function formatDate(value) {
+        if (!value) {
+          return "No date";
+        }
+
+        const date = new Date(value + "T12:00:00");
+
+        return Number.isNaN(date.getTime())
+          ? "No date"
+          : date.toLocaleDateString(undefined, {
+              month: "short",
+              day: "numeric"
+            });
+      }
+
+      function getWeekEnd() {
+        const date = new Date();
+        const day = date.getDay();
+        const daysToSunday = (7 - day) % 7;
+
+        date.setDate(date.getDate() + daysToSunday);
+
+        return date.toISOString().slice(0, 10);
+      }
+
+      function route() {
+        const requested = location.hash.replace("#", "") || "today";
+
+        const valid = $("[data-view='" + CSS.escape(requested) + "']")
+          ? requested
+          : "today";
+
+        $$(".view").forEach(view => {
+          view.classList.toggle("active", view.dataset.view === valid);
+        });
+
+        $$("[data-view-link]").forEach(link => {
+          link.classList.toggle("active", link.dataset.viewLink === valid);
+        });
+
+        $("#breadcrumbName").textContent =
+          valid.charAt(0).toUpperCase() + valid.slice(1);
+
+        $("#sidebar").classList.remove("open");
+        $("#mobileMenu").setAttribute("aria-expanded", "false");
+
+        window.scrollTo({
+          top: 0,
+          behavior: "instant"
+        });
+      }
+
+      function renderDate() {
+        const now = new Date();
+        const hour = now.getHours();
+
+        $("#dayGreeting").textContent =
+          hour < 12
+            ? "morning"
+            : hour < 18
+              ? "afternoon"
+              : "evening";
+
+        $("#todayDate").textContent = now.toLocaleDateString(undefined, {
+          weekday: "long",
+          month: "long",
+          day: "numeric",
+          year: "numeric"
+        });
+      }
+
+      function renderMetrics() {
+        $$("[data-metric-display]").forEach(element => {
+          element.textContent =
+            Number(state.metrics[element.dataset.metricDisplay] || 0).toLocaleString();
+        });
+
+        $("#growthMetrics").innerHTML = metricDefinitions
+          .map(([key, label, target]) => {
+            const value = Number(state.metrics[key] || 0);
+
+            const onTarget =
+              key === "followups"
+                ? value <= target
+                : value >= target;
+
+            return `
+              <article class="panel metric-card">
+                <div style="display:flex;justify-content:space-between;gap:10px">
+                  <div class="metric-label">${escapeHtml(label)}</div>
+                  <span class="pill ${onTarget ? "" : "watch"}">
+                    ${onTarget ? "On target" : "Watch"}
+                  </span>
+                </div>
+
+                <div class="metric-value">${value.toLocaleString()}</div>
+
+                <div class="metric-meta">
+                  <span>Target ${target}</span>
+                  <span>This week</span>
+                </div>
+              </article>
+            `;
+          })
+          .join("");
+
+        const fieldMap = {
+          opportunities: "metricOpportunities",
+          contacted: "metricContacted",
+          scheduled: "metricScheduled",
+          completed: "metricCompleted",
+          applications: "metricApplications",
+          followups: "metricFollowups",
+          referrals: "metricReferrals",
+          events: "metricEvents"
+        };
+
+        Object.entries(fieldMap).forEach(([key, id]) => {
+          $("#" + id).value = state.metrics[key] ?? 0;
+        });
+      }
+
+      function renderActions() {
+        const list = $("#actionList");
+        const priorities = $("#todayPriorityList");
+
+        const ordered = [...state.actions].sort((a, b) =>
+          Number(a.done) - Number(b.done) ||
+          String(a.due).localeCompare(String(b.due))
+        );
+
+        list.innerHTML = ordered.length
+          ? ordered.map(action => `
+              <div class="list-row ${action.done ? "completed" : ""}">
+                <div>
+                  <div class="row-title">${escapeHtml(action.title)}</div>
+                  <div class="row-meta">
+                    ${escapeHtml(action.lane)} · ${formatDate(action.due)}
+                  </div>
+                </div>
+
+                <div class="row-actions">
+                  <button
+                    class="button small-button"
+                    type="button"
+                    data-action-toggle="${action.id}"
+                  >
+                    ${action.done ? "Reopen" : "Done"}
+                  </button>
+
+                  <button
+                    class="button small-button danger"
+                    type="button"
+                    data-action-delete="${action.id}"
+                  >
+                    Remove
+                  </button>
+                </div>
+              </div>
+            `).join("")
+          : '<div class="empty-state">No actions yet. Add the week’s next concrete move.</div>';
+
+        const active = ordered
+          .filter(action => !action.done)
+          .slice(0, 3);
+
+        priorities.innerHTML = active.length
+          ? active.map(action => `
+              <div class="list-row">
+                <div>
+                  <div class="row-title">${escapeHtml(action.title)}</div>
+                  <div class="row-meta">
+                    ${escapeHtml(action.lane)} · ${formatDate(action.due)}
+                  </div>
+                </div>
+                <span class="pill">Next</span>
+              </div>
+            `).join("")
+          : '<div class="empty-state">Your top three open actions will appear here.</div>';
+      }
+
+      function renderPartners() {
+        const list = $("#partnerList");
+
+        list.innerHTML = state.partners.length
+          ? state.partners.map(partner => `
+              <div class="list-row">
+                <div>
+                  <div class="row-title">${escapeHtml(partner.name)}</div>
+                  <div class="row-meta">
+                    ${escapeHtml(partner.next)} · ${formatDate(partner.due)}
+                  </div>
+                </div>
+
+                <button
+                  class="button small-button danger"
+                  type="button"
+                  data-partner-delete="${partner.id}"
+                >
+                  Remove
+                </button>
+              </div>
+            `).join("")
+          : '<div class="empty-state">No partner follow-ups yet.</div>';
+      }
+
+      function renderReview() {
+        $$("[data-review-check]").forEach(input => {
+          input.checked = Boolean(
+            state.reviewChecks[input.dataset.reviewCheck]
+          );
+        });
+
+        while (state.commitments.length < 3) {
+          state.commitments.push({
+            text: "",
+            due: ""
+          });
+        }
+
+        state.commitments.forEach((commitment, index) => {
+          $("#commitment" + (index + 1)).value =
+            commitment.text || "";
+
+          $("#commitment" + (index + 1) + "Due").value =
+            commitment.due || getWeekEnd();
+        });
+      }
+
+      function renderLis() {
+        $("#leadFirstName").value = state.lis.firstName || "";
+
+        updateLeadName();
+
+        $$("[data-lis-question]").forEach(input => {
+          input.checked = Boolean(
+            state.lis[input.dataset.lisQuestion]
+          );
+        });
+      }
+
+      function updateLeadName() {
+        const raw = $("#leadFirstName").value.trim();
+        const displayName = raw || "[First Name]";
+
+        $$(".lead-name").forEach(element => {
+          element.textContent = displayName;
+        });
+
+        state.lis.firstName = raw;
+        saveState();
+      }
+
+      function formatTimer(totalSeconds) {
+        const hours = Math.floor(totalSeconds / 3600);
+        const minutes = Math.floor((totalSeconds % 3600) / 60);
+        const seconds = totalSeconds % 60;
+
+        const base =
+          String(minutes).padStart(2, "0") +
+          ":" +
+          String(seconds).padStart(2, "0");
+
+        return hours
+          ? String(hours).padStart(2, "0") + ":" + base
+          : base;
+      }
+
+      function updateTimer() {
+        $("#timerDisplay").textContent = formatTimer(timerSeconds);
+      }
+
+      function toggleTimer() {
+        const button = $("#timerToggle");
+
+        if (timerHandle) {
+          window.clearInterval(timerHandle);
+          timerHandle = null;
+
+          button.textContent = "▶ Resume call";
+          button.setAttribute("aria-pressed", "false");
+        } else {
+          timerHandle = window.setInterval(() => {
+            timerSeconds += 1;
+            updateTimer();
+          }, 1000);
+
+          button.textContent = "Ⅱ Pause call";
+          button.setAttribute("aria-pressed", "true");
+        }
+      }
+
+      function resetTimer() {
+        window.clearInterval(timerHandle);
+
+        timerHandle = null;
+        timerSeconds = 0;
+
+        updateTimer();
+
+        $("#timerToggle").textContent = "▶ Start call";
+        $("#timerToggle").setAttribute("aria-pressed", "false");
+      }
+
+      function resetCallTool() {
+        resetTimer();
+
+        state.lis = {
+          firstName: "",
+          q1: false,
+          q2: false,
+          q3: false
+        };
+
+        saveState("Call workspace cleared for a fresh call.");
+        renderLis();
+
+        $$("#scriptSections details").forEach((details, index) => {
+          details.open = index === 0;
+        });
+
+        $("#leadFirstName").focus();
+      }
+
+      function wireEvents() {
+        window.addEventListener("hashchange", route);
+
+        $("#mobileMenu").addEventListener("click", () => {
+          const sidebar = $("#sidebar");
+
+          sidebar.classList.toggle("open");
+
+          $("#mobileMenu").setAttribute(
+            "aria-expanded",
+            String(sidebar.classList.contains("open"))
+          );
+        });
+
+        $("#leadFirstName").addEventListener("input", updateLeadName);
+
+        $$("[data-lis-question]").forEach(input => {
+          input.addEventListener("change", event => {
+            state.lis[event.target.dataset.lisQuestion] =
+              event.target.checked;
+
+            saveState();
+          });
+        });
+
+        $("#timerToggle").addEventListener("click", toggleTimer);
+        $("#timerReset").addEventListener("click", resetTimer);
+        $("#resetCallTool").addEventListener("click", resetCallTool);
+
+        $("#expandScripts").addEventListener("click", event => {
+          const sections = $$("#scriptSections details");
+
+          const shouldOpen = sections.some(details => !details.open);
+
+          sections.forEach(details => {
+            details.open = shouldOpen;
+          });
+
+          event.currentTarget.textContent =
+            shouldOpen ? "Close all" : "Open all";
+        });
+
+        $("#actionForm").addEventListener("submit", event => {
+          event.preventDefault();
+
+          const title = $("#actionTitle").value.trim();
+
+          if (!title) {
+            return;
+          }
+
+          state.actions.push({
+            id: crypto.randomUUID(),
+            title,
+            lane: $("#actionLane").value,
+            due: $("#actionDue").value,
+            done: false
+          });
+
+          saveState("Action added.");
+          event.currentTarget.reset();
+          renderActions();
+        });
+
+        $("#actionList").addEventListener("click", event => {
+          const toggle = event.target.closest("[data-action-toggle]");
+          const remove = event.target.closest("[data-action-delete]");
+
+          if (toggle) {
+            const action = state.actions.find(
+              item => item.id === toggle.dataset.actionToggle
+            );
+
+            if (action) {
+              action.done = !action.done;
+            }
+          }
+
+          if (remove) {
+            state.actions = state.actions.filter(
+              item => item.id !== remove.dataset.actionDelete
+            );
+          }
+
+          if (toggle || remove) {
+            saveState("Actions updated.");
+            renderActions();
+          }
+        });
+
+        $("#metricsForm").addEventListener("submit", event => {
+          event.preventDefault();
+
+          const fieldMap = {
+            opportunities: "metricOpportunities",
+            contacted: "metricContacted",
+            scheduled: "metricScheduled",
+            completed: "metricCompleted",
+            applications: "metricApplications",
+            followups: "metricFollowups",
+            referrals: "metricReferrals",
+            events: "metricEvents"
+          };
+
+          Object.entries(fieldMap).forEach(([key, id]) => {
+            state.metrics[key] = Math.max(
+              0,
+              Number($("#" + id).value) || 0
+            );
+          });
+
+          saveState("Weekly totals saved in this browser.");
+          renderMetrics();
+        });
+
+        $$("[data-review-check]").forEach(input => {
+          input.addEventListener("change", event => {
+            state.reviewChecks[event.target.dataset.reviewCheck] =
+              event.target.checked;
+
+            saveState();
+          });
+        });
+
+        $("#reviewForm").addEventListener("submit", event => {
+          event.preventDefault();
+
+          state.commitments = [1, 2, 3].map(number => ({
+            text: $("#commitment" + number).value.trim(),
+            due: $("#commitment" + number + "Due").value
+          }));
+
+          saveState("Weekly review draft saved.");
+        });
+
+        $("#clearReview").addEventListener("click", () => {
+          state.reviewChecks = {};
+          state.commitments =
+            structuredClone(defaultState.commitments);
+
+          saveState("Review cleared for a fresh week.");
+          renderReview();
+        });
+
+        $("#partnerForm").addEventListener("submit", event => {
+          event.preventDefault();
+
+          const name = $("#partnerName").value.trim();
+          const next = $("#partnerNext").value.trim();
+
+          if (!name || !next) {
+            return;
+          }
+
+          state.partners.push({
+            id: crypto.randomUUID(),
+            name,
+            next,
+            due: $("#partnerDue").value
+          });
+
+          saveState("Partner follow-up added.");
+          event.currentTarget.reset();
+          renderPartners();
+        });
+
+        $("#partnerList").addEventListener("click", event => {
+          const remove = event.target.closest("[data-partner-delete]");
+
+          if (!remove) {
+            return;
+          }
+
+          state.partners = state.partners.filter(
+            item => item.id !== remove.dataset.partnerDelete
+          );
+
+          saveState("Partner follow-up removed.");
+          renderPartners();
+        });
+      }
+
+      function initialize() {
+        renderDate();
+        renderMetrics();
+        renderActions();
+        renderPartners();
+        renderReview();
+        renderLis();
+        updateTimer();
+        wireEvents();
+        route();
+      }
+
+      initialize();
+    })();
+  </script>
+</body>
+</html>
