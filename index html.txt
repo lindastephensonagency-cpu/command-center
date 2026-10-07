@@ -1,0 +1,65 @@
+<!-- REPLACE YOUR CALLED COMMIT LOG BUTTONS ARRAYS WITH THIS COMPLIANT INTELLIGENT ROUTING LOGIC -->
+<div style="margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--line);">
+  <h3 style="margin-bottom: 12px;">Quick Log Call Session Outcome</h3>
+  <div class="button-row">
+    <button class="button primary small-button" onclick="executeAppointmentHandoffClose()">🗓️ Appointment Set</button>
+    <button class="button small-button" onclick="commitCallLog('Left Voicemail')">📼 Left Voicemail</button>
+    <button class="button small-button" onclick="commitCallLog('No Answer')">🔇 No Answer</button>
+    <button class="button danger small-button" onclick="executeOptOutActionQueueRoute()">❌ Not Interested</button>
+  </div>
+</div>
+
+<script>
+  // AUTOMATION 1: OPT-OUT ACTION QUEUE AUTO-POPULATION
+  function executeOptOutActionQueueRoute() {
+    const inputFieldRawValueString = document.getElementById("lead-first-name-input").value.trim();
+    const targetedClientLogName = inputFieldRawValueString !== "" ? inputFieldRawValueString : "Anonymous Lead Reference";
+    const calculatedDurationLogString = document.getElementById("call-timer-display").textContent;
+
+    // Log the structural call metric natively
+    commitCallLog('Not Interested');
+
+    // Automatically push a High-Priority task into the Actions Array database
+    const optOutActionItem = {
+      timestamp: new Date().toLocaleString(),
+      clientName: targetedClientLogName,
+      status: 'High Priority Action Needed',
+      duration: '⚠️ Remove mailer prospect - Add to internal Opt-Out suppression list'
+    };
+
+    // Prepend into your existing local storage tracker arrays
+    sessionMetricsArray.unshift(optOutActionItem);
+    localStorage.setItem("gateway_dashboard_call_history", JSON.stringify(sessionMetricsArray));
+    processUIMetricsRefresh();
+    
+    alert(`Workflow Success:\n"${targetedClientLogName}" has been logged as Not Interested, and a cleanup ticket has been automatically injected into your Actions Tab queue.`);
+  }
+
+  // AUTOMATION 2: INTEGRITYCONNECT ONE-CLICK HANDOFF BRIDGE
+  function executeAppointmentHandoffClose() {
+    const inputFieldRawValueString = document.getElementById("lead-first-name-input").value.trim();
+    const targetedClientLogName = inputFieldRawValueString !== "" ? inputFieldRawValueString : "Anonymous Prospect";
+    const calculatedDurationLogString = document.getElementById("call-timer-display").textContent;
+
+    // 1. Formulate clear summary notes text layout for your system clipboard paste assist
+    const complianceNotesSummary = `Medicare Consultation set during LIS Mailer outreach follow-up. Call Duration: ${calculatedDurationLogString}. Callback confirmation routing established via agency line 314-756-0161.`;
+
+    // 2. Execute background copy function to lock text directly onto your mouse right-click clipboard
+    navigator.clipboard.writeText(complianceNotesSummary).then(() => {
+      // 3. Log the historical metric safely inside your localized session numbers counter
+      commitCallLog('Appointment Set');
+
+      // 4. Fire the secure tab launch redirect heading straight to IntegrityCONNECT portal search screens
+      // Note: Replace this placeholder link with your exact IntegrityCONNECT landing dashboard domain address
+      const integrityConnectPortalUrl = "https://integrityconnect.com"; 
+      
+      window.open(integrityConnectPortalUrl, '_blank');
+
+      alert(`Victory! Appointment metrics logged successfully.\n\n1. Call timer paused at ${calculatedDurationLogString}.\n2. Compliance consultation notes have been automatically copied to your clipboard.\n3. IntegrityCONNECT is now opening in a new tab. Simply right-click and 'Paste' to log the event natively!`);
+    }).catch(err => {
+      // Fallback execution if clipboard locks up
+      commitCallLog('Appointment Set');
+      window.open("https://integrityconnect.com", '_blank');
+    });
+  }
+</script>
